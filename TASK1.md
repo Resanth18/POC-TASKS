@@ -80,7 +80,27 @@ sudo visudo
 
 **Restrict Alice from switching to root** by adding:
 ```plaintext
-alice ALL=(ALL) !/bin/su, !/bin/bash
+rcb ALL=(ALL) !/bin/su, !/bin/bash
 ```
+## 📌 Task 1 - Summary  
+
+| **Step**             | **Action**                                         | **Command**                                  |
+|----------------------|---------------------------------------------------|---------------------------------------------|
+| 🔹 **Setup**         | Create user **rcb**                                | `sudo useradd rcb` |
+|                     | Set password for **rcb**                           | `echo "rcb:password123" | sudo chpasswd` |
+|                     | Verify user exists                                 | `cat /etc/passwd | grep rcb` |
+|                     | Check default permissions of sensitive files       | `ls -l /etc/shadow /etc/passwd` |
+|                     | Assign incorrect permissions (INSECURE)            | `sudo chmod 777 /etc/shadow` |
+|                     | Verify permission changes                          | `ls -l /etc/shadow` |
+| 🔹 **Exploitation**  | Switch to **rcb** (low-privileged user)           | `su - rcb` |
+|                     | Try accessing sensitive files                      | `cat /etc/shadow`<br>`cat /etc/passwd` |
+|                     | Try modifying `/etc/shadow` (Critical exploit!)    | `echo "hacked::0:0::/:/bin/bash" | tee -a /etc/shadow` |
+|                     | Switch back to root                                | `su` |
+| 🔹 **Mitigation**    | Restore secure permissions                        | `sudo chmod 640 /etc/shadow`<br>`sudo chown root:shadow /etc/shadow` |
+|                     | Verify permission fix                              | `ls -l /etc/shadow` |
+| 🔹 **Secure Sudo Privileges** | Edit sudoers file                   | `sudo visudo` |
+|                     | Restrict **rcb** from switching to root            | Add the following in `visudo`:<br>`rcb ALL=(ALL) !/bin/su, !/bin/bash` |
+
+---
 
 ### END -x-
