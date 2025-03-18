@@ -73,7 +73,7 @@ localhost [178.0.0.9] 80 (http) open
 
 
 ```
-###✅ Mitigation: Hardening the System with UFW & iptables**
+### ✅ **Mitigation: Hardening the System with UFW & iptables**
 ```
 # Enable UFW firewall
 ┌──(kali㉿kali)-[~]
