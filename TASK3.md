@@ -122,20 +122,18 @@ run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
 
 | **Step**              | **Action**                                         | **Command**                                  |
 |----------------------|-------------------------------------------------|---------------------------------------------|
-| 🔹 **Setup**          | Install and start Apache2 web server            | `sudo apt update && sudo apt install -y apache2`<br>`sudo systemctl enable apache2`<br>`sudo systemctl start apache2` |
-|                      | Disable UFW to allow all traffic                 | `sudo ufw disable` |
-|                      | Verify Apache2 is running                        | `sudo systemctl status apache2` |
-|                      | Check open ports before hardening                | `sudo ss -tulnp` |
-| 🔹 **Exploitation**   | Scan for open ports using Nmap                   | `sudo nmap -sS -A localhost` |
-|                      | Scan open ports using Netcat                     | `for port in {1..65535}; do (echo >/dev/tcp/127.0.0.1/$port) &>/dev/null && echo "Port $port is open"; done` |
-|                      | Identify exposed services                        | `sudo ss -tulnp` |
-| 🔹 **Mitigation (UFW)** | Enable UFW and allow only SSH & HTTP            | `sudo ufw enable`<br>`sudo ufw allow 22/tcp`<br>`sudo ufw allow 80/tcp`<br>`sudo ufw default deny incoming` |
-|                      | Check UFW status                                 | `sudo ufw status verbose` |
-| 🔹 **Mitigation (iptables)** | Allow only SSH & HTTP traffic using iptables | `sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT`<br>`sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT`<br>`sudo iptables -P INPUT DROP` |
-|                      | Save iptables rules                              | `sudo iptables-save > /etc/iptables.rules` |
-|                      | List iptables rules                              | `sudo iptables -L -v` |
-| 🔹 **Verification**   | Re-scan open ports after hardening               | `sudo nmap -sS -A localhost` |
-|                      | Check that only SSH (22) and HTTP (80) are open  | `sudo ss -tulnp` |
+| 🔹 **Setup**          | Install and start Apache2 web server            | `sudo apt install -y apache2`<br>`sudo systemctl enable apache2`<br>`sudo systemctl start apache2` |
+|                      | Verify Apache is running                        | `sudo systemctl status apache2` |
+|                      | Disable UFW to allow all traffic (INSECURE)      | `sudo ufw disable` |
+| 🔹 **Exploitation**   | Check open ports using netstat                  | `sudo netstat -tulnp` |
+|                      | Scan for open ports using Nmap                   | `sudo nmap -sS -A localhost` |
+|                      | Check specific port availability with Netcat     | `nc -zv localhost 80` |
+| 🔹 **Mitigation (UFW)** | Enable UFW and allow only SSH & HTTP            | `sudo ufw enable`<br>`sudo ufw allow 22/tcp`<br>`sudo ufw allow 80/tcp` |
+|                      | Set default UFW rules (deny incoming, allow outgoing) | `sudo ufw default deny incoming`<br>`sudo ufw default allow outgoing` |
+|                      | Verify UFW rules                                 | `sudo ufw status verbose` |
+| 🔹 **Mitigation (iptables)** | Allow only SSH & HTTP traffic using iptables | `sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT`<br>`sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT` |
+|                      | Save iptables rules                              | `sudo netfilter-persistent save` |
+
 
 ---
  ### END -x-
